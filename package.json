@@ -1,0 +1,8 @@
+{
+  "name": "restor",
+  "version": "1.0.0",
+  "description": "Restaurant application using MERN stack",
+  "main": "server.js",
+  "author": "jks",
+  "license": "MIT"
+}
