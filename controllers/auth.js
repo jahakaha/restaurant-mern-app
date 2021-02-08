@@ -1,5 +1,7 @@
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const { jwtSecret, jwtExpire} = require('../config/keys')
 
 exports.signupController = async (req, res) => {
     const {username, email, password } = req.body;
@@ -44,12 +46,36 @@ exports.signinController = async (req, res) => {
             });
         }
 
-        const isMatch = await bcrypt.compare(password, user.email);
+        const isMatch = await bcrypt.compare(password, user.password);
         if(!isMatch){
             return res.status(400).json({
                 errorMessage: 'Invalid credentials',
             })
         } 
+        // sign jwt
+        const payload = {
+            user: {
+                _id: user._id,
+            },
+        };
+
+        jwt.sign(
+            payload, 
+            jwtSecret, 
+            { expiresIn: jwtExpire },
+            (err, token) => {
+                if(err){
+                    console.log('jwt error', err);
+                }
+                const { _id, username, email, role} = user;
+            //send {user, token}
+                res.json({
+                    token,
+                    user: { _id, username, email, role},
+                })
+            }
+        );
+
     } catch (err) {
         console.log('Signin controller error', err);
         res.status(500).json({
